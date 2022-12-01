@@ -2,13 +2,12 @@ package Processors
 
 import (
 	fileReader "AOC_2022/FileReader"
-	"AOC_2022/Interfaces"
 	"fmt"
 )
 
 type Day1 struct {
 	InputFilePath string
-	processor     Interfaces.Processor
+	processor     Processor
 }
 
 func (Processor Day1) FirstTaskResult() {
