@@ -27,8 +27,20 @@ func GetIntMap(filePath string) map[int]int {
 	scanner := getFileScanner(filePath)
 
 	for scanner.Scan() {
-		m[getLineAsInt(scanner.Text())] = getLineAsInt(scanner.Text())
+		m[i] = getLineAsInt(scanner.Text())
+		i++
+	}
 
+	return m
+}
+
+func GetParsedMap(filePath string, parseFunc func(string2 string) string) map[int]string {
+	scanner := getFileScanner(filePath)
+	m := make(map[int]string)
+
+	i := 0
+	for scanner.Scan() {
+		m[i] = parseFunc(scanner.Text())
 		i++
 	}
 
@@ -42,6 +54,18 @@ func GetIntArray(filePath string) []int {
 
 	for scanner.Scan() {
 		values = append(values, getLineAsInt(scanner.Text()))
+	}
+
+	return values
+}
+
+func GetStringArray(filePath string) []string {
+	scanner := getFileScanner(filePath)
+
+	var values []string
+
+	for scanner.Scan() {
+		values = append(values, scanner.Text())
 	}
 
 	return values
