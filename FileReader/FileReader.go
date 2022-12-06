@@ -71,6 +71,16 @@ func GetStringArray(filePath string) []string {
 	return values
 }
 
+func GetString(filePath string) string {
+	scanner := getFileScanner(filePath)
+
+	for scanner.Scan() {
+		return scanner.Text()
+	}
+
+	return ""
+}
+
 func getLineAsInt(line string) int {
 	if line == "" {
 		return 0
