@@ -8,7 +8,7 @@ import (
 const FilesFolder = "InputFiles"
 
 // DAY TODO User input
-const DAY = 6
+const DAY = 7
 
 func main() {
 	getDayProcessor(DAY).FirstTaskResult()
@@ -27,6 +27,7 @@ func getAllProcessors() map[int]Processors.Processor {
 		4: Processors.Day4{InputFilePath: getDayInputFile(4)},
 		5: Processors.Day5{InputFilePath: getDayInputFile(5)},
 		6: Processors.Day6{InputFilePath: getDayInputFile(6)},
+		7: Processors.Day7{InputFilePath: getDayInputFile(7)},
 	}
 }
 
