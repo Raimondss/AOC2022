@@ -29,11 +29,17 @@ func (Position Position) getPositionKey() string {
 type Tile struct {
 	position               Position
 	uniquePositionsVisited map[string]bool
+	ChildTile              *Tile
+	childrenCount          int
 }
 
-func (Rope *Rope) checkTail() {
-	diffX := Rope.head.position.x - Rope.tail.position.x
-	diffY := Rope.head.position.y - Rope.tail.position.y
+func (Tile *Tile) checkChildPosition() {
+	if Tile.ChildTile == nil {
+		return
+	}
+
+	diffX := Tile.position.x - Tile.ChildTile.position.x
+	diffY := Tile.position.y - Tile.ChildTile.position.y
 
 	if diffX <= 1 && diffX >= -1 && diffY <= 1 && diffY >= -1 {
 		//In connection
@@ -42,8 +48,23 @@ func (Rope *Rope) checkTail() {
 
 	direction := ""
 
-	if diffX == 2 {
+	if diffX == -2 && diffY == -2 {
+		direction = DirectionDownLeft
+	}
 
+	if diffX == -2 && diffY == 2 {
+		direction = DirectionUpLeft
+	}
+
+	if diffX == 2 && diffY == 2 {
+		direction = DirectionUpRight
+	}
+
+	if diffX == 2 && diffY == -2 {
+		direction = DirectionDownRight
+	}
+
+	if diffX == 2 {
 		if diffY == 0 {
 			direction = DirectionRight
 		}
@@ -103,18 +124,21 @@ func (Rope *Rope) checkTail() {
 		panic("PANIC - NO FOLLOW DIRECTION")
 	}
 
-	newTailPosition := getNewPositionBasedOnDirection(direction, Rope.tail.position)
+	newTailPosition := getNewPositionBasedOnDirection(direction, Tile.ChildTile.position)
 
-	Rope.tail.setPosition(newTailPosition)
+	fmt.Println("CHILD:" + strconv.Itoa(Tile.ChildTile.childrenCount-9) + "FOLLOWS:" + direction)
+
+	Tile.ChildTile.setPosition(newTailPosition)
 }
 
 type Rope struct {
-	head Tile
-	tail Tile
+	head *Tile
+	tail *Tile
 }
 
 func (Rope *Rope) doMovement(Movement Movement) {
 	for i := 0; i < Movement.times; i++ {
+		fmt.Println("HEAD MOVES :" + Movement.direction)
 		Rope.moveHeadByDirection(Movement.direction)
 	}
 }
@@ -122,7 +146,6 @@ func (Rope *Rope) doMovement(Movement Movement) {
 func (Rope *Rope) moveHeadByDirection(direction string) {
 	newPosition := getNewPositionBasedOnDirection(direction, Rope.head.position)
 	Rope.head.setPosition(newPosition)
-	Rope.checkTail()
 }
 
 const DirectionUp = "U"
@@ -191,6 +214,7 @@ func (Tile *Tile) setPosition(newPosition Position) {
 	Tile.uniquePositionsVisited[newPosition.getPositionKey()] = true
 
 	Tile.position = newPosition
+	Tile.checkChildPosition()
 }
 
 func (Movement Movement) getMovementAxis() string {
@@ -213,24 +237,41 @@ func (Day9 Day9) FirstTaskResult() {
 	fmt.Print("First:")
 	headMovements := getHeadMovements(Day9)
 
-	rope := Rope{head: Tile{
-		position:               Position{x: 0, y: 0},
-		uniquePositionsVisited: make(map[string]bool),
-	},
-		tail: Tile{
-			position:               Position{x: 0, y: 0},
-			uniquePositionsVisited: make(map[string]bool),
-		}}
+	tile := makeTile(1)
 
-	rope.tail.uniquePositionsVisited[rope.tail.position.getPositionKey()] = true
-	rope.head.uniquePositionsVisited[rope.tail.position.getPositionKey()] = true
+	rope := Rope{head: tile}
 
 	for _, headMovement := range headMovements {
 		rope.doMovement(headMovement)
 	}
 
-	fmt.Println(len(rope.tail.uniquePositionsVisited))
+	printTailPosition(rope.head)
+}
 
+func printTailPosition(tile *Tile) {
+	if tile.ChildTile == nil {
+		fmt.Println(len(tile.uniquePositionsVisited))
+		return
+	}
+
+	printTailPosition(tile.ChildTile)
+}
+
+func makeTile(childrenAmount int) *Tile {
+	tile := Tile{
+		position:               Position{x: 0, y: 0},
+		uniquePositionsVisited: make(map[string]bool),
+		childrenCount:          childrenAmount,
+	}
+
+	tile.uniquePositionsVisited[tile.position.getPositionKey()] = true
+
+	if childrenAmount > 0 {
+		childrenAmount--
+		tile.ChildTile = makeTile(childrenAmount)
+	}
+
+	return &tile
 }
 
 func getHeadMovements(Day9 Day9) []Movement {
@@ -251,5 +292,16 @@ func getHeadMovements(Day9 Day9) []Movement {
 }
 
 func (Day9 Day9) SecondTaskResult() {
+	fmt.Print("First:")
+	headMovements := getHeadMovements(Day9)
 
+	tile := makeTile(9)
+
+	rope := Rope{head: tile}
+
+	for _, headMovement := range headMovements {
+		rope.doMovement(headMovement)
+	}
+
+	printTailPosition(rope.head)
 }
