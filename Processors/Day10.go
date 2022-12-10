@@ -67,10 +67,6 @@ func (Day10 Day10) FirstTaskResult() {
 	fmt.Println("TOTAL:" + strconv.Itoa(totalSignalStrenth))
 }
 
-func printLine(x) {
-
-}
-
 func printCycle(x int, cycle int) {
 	fmt.Println("CYCLE " + strconv.Itoa(cycle) + " X:" + strconv.Itoa(x))
 }
