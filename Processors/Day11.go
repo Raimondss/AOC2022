@@ -82,7 +82,7 @@ func (Day Day11) FirstTaskResult() {
 			monkeys = currentMonkey.inspectItems(monkeys)
 		}
 	}
-
+	println("________TASK1____________")
 	for _, monkey := range monkeys {
 		fmt.Println("Monkey" + strconv.Itoa(monkey.index) + " inspected items " + strconv.Itoa(monkey.inspectedItemCount))
 	}
@@ -91,6 +91,69 @@ func (Day Day11) FirstTaskResult() {
 
 func (Day Day11) SecondTaskResult() {
 	fmt.Println("Second")
+	monkeys := createMonkeys()
+
+	dividor := 1
+	for _, monkey := range monkeys {
+		dividor *= monkey.testInt
+	}
+
+	for round := 1; round <= 10000; round++ {
+		//fmt.Println("ROUND:" + strconv.Itoa(round))
+		//fmt.Println("$$$$$$$$$$$$$$")
+		for i := 0; i < len(monkeys); i++ {
+			//fmt.Println("_____________")
+			currentMonkey := monkeys[i]
+			monkeys = currentMonkey.inspectItemsTwo(monkeys, dividor)
+		}
+
+		if round%1000 == 0 {
+			println(round)
+			for _, monkey := range monkeys {
+				fmt.Println("Monkey" + strconv.Itoa(monkey.index) + " inspected items " + strconv.Itoa(monkey.inspectedItemCount))
+			}
+		}
+	}
+
+	println("RESULT")
+	for _, monkey := range monkeys {
+		fmt.Println("Monkey" + strconv.Itoa(monkey.index) + " inspected items " + strconv.Itoa(monkey.inspectedItemCount))
+	}
+}
+
+func (Monkey Monkey) inspectItemsTwo(monkeyArray map[int]Monkey, commonDividor int) map[int]Monkey {
+	//fmt.Println("Monkey " + strconv.Itoa(Monkey.index) + " begins items inspection")
+
+	for itemIndex, itemWorryLevel := range Monkey.holdingItems {
+		//fmt.Println("Inspects:" + strconv.Itoa(itemWorryLevel))
+		if itemWorryLevel > commonDividor {
+			itemWorryLevel = itemWorryLevel % commonDividor
+		}
+
+		Monkey.inspectedItemCount++
+		itemWorryLevel = Monkey.operation(itemWorryLevel)
+		//fmt.Println("Worry level changed to:" + strconv.Itoa(itemWorryLevel))
+
+		isDivisible := itemWorryLevel%Monkey.testInt == 0
+
+		monkeyToThrowTo := 0
+
+		if isDivisible {
+			//fmt.Println("Is divisible by " + strconv.Itoa(Monkey.testInt) + " thrown to:" + strconv.Itoa(Monkey.trueReceiver))
+			monkeyToThrowTo = Monkey.trueReceiver
+		} else {
+			//fmt.Println("Is not divisible by " + strconv.Itoa(Monkey.testInt) + " thrown to:" + strconv.Itoa(Monkey.falseReceiver))
+			monkeyToThrowTo = Monkey.falseReceiver
+		}
+
+		monkeyToReceive := monkeyArray[monkeyToThrowTo]
+		monkeyToReceive.addItem(itemWorryLevel)
+		Monkey.removeItem(itemIndex)
+
+		monkeyArray[Monkey.index] = Monkey
+	}
+
+	return monkeyArray
 }
 
 func createMonkeys() map[int]Monkey {
